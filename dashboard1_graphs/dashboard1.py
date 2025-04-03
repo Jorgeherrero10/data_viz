@@ -15,14 +15,14 @@ from utils import bucket_1, bucket_2, bucket_3, bucket_4, bucket_5  # Assuming t
 # ------------------ Data Loading & Preparation ------------------
 # Load GeoJSON for Madrid districts
 try:
-    with open('../data/DistritosMadrid.geojson', 'r', encoding='utf-8') as f:
+    with open('data/DistritosMadrid.geojson', 'r', encoding='utf-8') as f:
         geojson_data = json.load(f)
 except FileNotFoundError:
     st.error("GeoJSON file not found. Please check the file path.")
     st.stop()
 
 # Load rental prices data
-df_prices = pd.read_csv('../data/prices.csv')
+df_prices = pd.read_csv('data/prices.csv')
 df_prices['Date'] = pd.to_datetime(df_prices['Date'])
 
 # Calculate average rent per district over time for the line chart
@@ -67,28 +67,34 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # Update the custom_css section
 custom_css = """
     <style>
-        /* Fixed top bar styling */
-        .fixed-top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 70px 0 10px 250px;
+        /* Add padding to the top of the page */
+        .main {
+            padding-top: 50px !important;
+        }
+
+        /* Title bar styling */
+        .title-bar {
             background-color: #dcef6e;
-            text-align: left;
-            z-index: 1100;
-            border-bottom: 2px solid #ccc;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            margin-top: 20px;
+            color: #333;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            height: 45px;
         }
-        /* Offset body so content doesn't hide behind the fixed bar */
-        body {
-            margin-top: 100px;
-        }
+
         /* Override the default padding and margins for block containers */
         div.block-container {
-            padding: 0rem !important;
-            margin: 0 !important;
+            padding-top: 30px !important; /* Keep existing or adjust if needed */
+            padding-bottom: 0 !important;
+            margin-top: 10px !important;
+            margin-bottom: 0 !important;
         }
-        /* Target Streamlit’s column wrapper for further reduction */
+        /* Target Streamlit's column wrapper for further reduction */
         .css-1lcbmhc {
             padding: 0 !important;
             margin: 0 !important;
@@ -107,12 +113,8 @@ custom_css = """
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-font_size = "28px"
-st.markdown(f"""
-    <div class="fixed-top-bar" style="font-size: {font_size};">
-        <b>Strategic Overview:</b> Rent Prices in Madrid represent a serious problem for the youth population.
-    </div>
-    """, unsafe_allow_html=True)
+# Display the title bar
+st.markdown('<div class="title-bar"><b>Tactical Decisions: </b> Smart Rent Control Implementation</div>', unsafe_allow_html=True)
 
 # ------------------ Sidebar with Filters ------------------
 with st.sidebar:
@@ -138,7 +140,7 @@ with st.sidebar:
 
 # ------------------ Main Dashboard Content ------------------
 # Main Dashboard Content
-st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)  # Keep this for the fixed header offset
+# st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)  # Removed this spacer
 col1, col2 = st.columns(2)
 
 with col1:
@@ -237,11 +239,11 @@ with col1:
         with bucket2_col:
             try:
                 value2 = bucket_2(df_prices, kpi_district)
-                st.metric(label="Max Rental", value=value2 if value2 != "N/A" else "N/A")
+                st.metric(label="Max Rental", value=value2)
+                st.caption("Max Rent recorded (€/m²)")
             except Exception as e:
                 st.metric(label="Max Rental", value="Error")
                 st.caption(f"Error: {str(e)}")
-            st.caption("Maximum Rent Price recorded (€/m²)")
             
         with bucket3_col:
             try:
@@ -263,7 +265,7 @@ with col1:
 
 with col2:
     # --- Graph 1: Youth Salary vs Rent Prices ---
-    df_youth = pd.read_csv(r"..\data\Youth_Salary_vs_Rent_Prices.csv")
+    df_youth = pd.read_csv("data/Youth_Salary_vs_Rent_Prices.csv")
     fig1 = go.Figure()
     fig1.add_trace(go.Bar(
         x=df_youth["Year"],
