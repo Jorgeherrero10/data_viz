@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+from io import StringIO
 
 from utils import bucket_1, bucket_2, bucket_3, bucket_4, bucket_5  # Assuming these have been updated as above
 
@@ -62,6 +64,7 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# Update the custom_css section
 custom_css = """
     <style>
         /* Fixed top bar styling */
@@ -85,10 +88,20 @@ custom_css = """
             padding: 0rem !important;
             margin: 0 !important;
         }
-        /* Optionally, target Streamlit’s column wrapper for further reduction */
+        /* Target Streamlit’s column wrapper for further reduction */
         .css-1lcbmhc {
             padding: 0 !important;
             margin: 0 !important;
+        }
+        /* Reduce padding/margins for containers */
+        .stPlotlyChart, .stFoliumMap, .stMetric {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        /* Ensure containers are tightly packed */
+        div[data-testid="stVerticalBlock"] > div {
+            margin: 0 !important;
+            padding: 0 !important;
         }
     </style>
 """
@@ -114,7 +127,7 @@ with st.sidebar:
     )
     st.session_state.selected_districts = selected_districts
 
-    # --- New KPI Filter ---
+    # --- KPI Filter ---
     st.markdown("<hr>", unsafe_allow_html=True)
     st.subheader("KPI Filter")
     kpi_district = st.selectbox(
@@ -124,7 +137,8 @@ with st.sidebar:
     )
 
 # ------------------ Main Dashboard Content ------------------
-st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
+# Main Dashboard Content
+st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)  # Keep this for the fixed header offset
 col1, col2 = st.columns(2)
 
 with col1:
@@ -156,17 +170,15 @@ with col1:
             yaxis_title="Rent Price (€ per M²)",
             yaxis_range=[7, 26],
             xaxis_range=[pd.to_datetime('2008-08-01'), df_prices['Date'].max()],
-            margin=dict(l=40, r=20, t=50, b=40),
+            margin=dict(l=40, r=20, t=50, b=10),  # Reduced bottom margin
             height=250,
-            legend=dict(
-                font=dict(size=10)
-            )
+            legend=dict(font=dict(size=10))
         )
         st.plotly_chart(fig_line, use_container_width=True)
         
     # --- Container 2: Map ---
     with st.container():
-        st.markdown("<div style='margin-top: -10px;'></div>", unsafe_allow_html=True)
+        # Removed the margin-top div
         m = folium.Map(location=[40.417101, -3.695899], zoom_start=10, tiles="cartodbpositron")
         for feature in geojson_data['features']:
             district_name = feature['properties'].get('NOMBRE', 'Unknown')
@@ -196,7 +208,7 @@ with col1:
             border:1px solid grey;
             padding:0px;">
             <div style="text-align:center"><b>Rent Range</b></div>
-            <div style="font-size:12px;">Low &nbsp;&nbsp;<span style="float:right;">High</span></div>
+            <div style="font-size:12px;">Low   <span style="float:right;">High</span></div>
             <div style="width:100%; height:10px; background: linear-gradient(to right, #000000, #ff0000);"></div>
             </div>
             """
@@ -211,36 +223,47 @@ with col1:
                 
     # --- Container 3: Buckets (4 Metrics) ---
     with st.container():
-        st.markdown("<div style='margin-top: -20px;'></div>", unsafe_allow_html=True)
         bucket1_col, bucket2_col, bucket3_col, bucket4_col = st.columns(4)
         
         with bucket1_col:
-            value1 = bucket_1(df_prices, kpi_district)
-            st.metric(label="CAGR", value=value1)
+            try:
+                value1 = bucket_1(df_prices, kpi_district)
+                st.metric(label="CAGR", value=value1 if value1 != "N/A" else "N/A")
+            except Exception as e:
+                st.metric(label="CAGR", value="Error")
+                st.caption(f"Error: {str(e)}")
             st.caption("Annual growth rate of Rent Price (%)")
             
         with bucket2_col:
-            value2 = bucket_2(df_prices, kpi_district)
-            st.metric(label="Max Rental", value=value2)
-            st.caption("Maximum Rent Price recorded")
+            try:
+                value2 = bucket_2(df_prices, kpi_district)
+                st.metric(label="Max Rental", value=value2 if value2 != "N/A" else "N/A")
+            except Exception as e:
+                st.metric(label="Max Rental", value="Error")
+                st.caption(f"Error: {str(e)}")
+            st.caption("Maximum Rent Price recorded (€/m²)")
             
         with bucket3_col:
-            value3 = bucket_3(df_prices, kpi_district)
-            st.metric(label="Ranking", value=value3)
-            st.caption("Ranking position by Rent Price")
+            try:
+                value3 = bucket_3(df_prices, kpi_district)
+                st.metric(label="Ranking", value=value3 if value3 != "N/A" else "N/A")
+            except Exception as e:
+                st.metric(label="Ranking", value="Error")
+                st.caption(f"Error: {str(e)}")
+            st.caption("Ranking position by Avg Rent Price")
             
         with bucket4_col:
-            value4 = bucket_4(df_prices, kpi_district)
-            st.metric(label="Average Rent Price", value=value4)
-            st.caption("Average Rent Price")
+            try:
+                value4 = bucket_4(df_prices, kpi_district)
+                st.metric(label="Avg Rent Price", value=value4 if value4 != "N/A" else "N/A")
+            except Exception as e:
+                st.metric(label="Avg Rent Price", value="Error")
+                st.caption(f"Error: {str(e)}")
+            st.caption("Average Rent Price (€/m²)")
 
 with col2:
     # --- Graph 1: Youth Salary vs Rent Prices ---
-    
     df_youth = pd.read_csv(r"..\data\Youth_Salary_vs_Rent_Prices.csv")
-    # Ensure your columns are named appropriately; for example:
-    # df_youth.columns = ["Year", "Average_Youth_Salary", "Average_Monthly_Rent"]
-    
     fig1 = go.Figure()
     fig1.add_trace(go.Bar(
         x=df_youth["Year"],
@@ -271,7 +294,7 @@ with col2:
     fig1.update_layout(
         barmode="group",
         xaxis_title="Year",
-        yaxis_title="Amount in $",
+        yaxis_title="Amount in €",
         title="Average Youth Salary vs Average Monthly Rent Prices",
         xaxis_tickangle=-45,
         yaxis_range=[600, 1200],
@@ -280,40 +303,58 @@ with col2:
     )
     st.plotly_chart(fig1, use_container_width=True)
     
-    # --- Graph 2: Comparison: Madrid vs Europe (Horizontal Bar Chart) ---
+    col4, col5 = st.columns([1,2])
+    with col4:
+        # --- New Filter and Bucket: Required Income for 100m² Apartment ---
+        with st.container():
+            # Add a filter for selecting the district for the Required Income metric
+            district_list = sorted(df_prices['District'].unique())
+            required_income_district = st.selectbox(
+                "Select District for Required Income",
+                options=["All"] + district_list,
+                index=0,
+                key="required_income_district_selectbox"
+            )
+            
+            # Calculate the required income based on the selected district
+            avg_rent_price = bucket_4(df_prices, required_income_district)
+            if avg_rent_price != "N/A":
+                required_income = bucket_5(avg_rent_price, surface=100)
+                st.metric(label=f"Required Income (100m²) - {required_income_district}", value=f"€{required_income}")
+                st.caption("Net income needed (40% to rent)")
+            else:
+                st.metric(label=f"Required Income (100m²) - {required_income_district}", value="N/A")
+                st.caption("Net income needed (40% to rent)")
+    with col5:
     
-    import plotly.express as px
-    df_bar = pd.DataFrame({
-        "Region": ["Madrid", "Europe"],
-        "Percentage": [60, 40]
-    })
-    fig2 = px.bar(df_bar, 
-                  x="Percentage", 
-                  y="Region", 
-                  orientation="h", 
-                  text="Percentage",
-                  labels={"Percentage": "Percentage", "Region": "Region"},
-                  title="Comparison: Madrid vs Europe")
-    fig2.update_traces(texttemplate='%{text}%', textposition='outside')
-    fig2.update_layout(
-        xaxis_range=[0, 100],
-        yaxis={'categoryorder':'total ascending'},
-        margin=dict(l=40, r=20, t=50, b=40),
-        height=150
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-    
+        # --- Graph 2: Comparison: Madrid vs Europe (Horizontal Bar Chart) ---
+        df_bar = pd.DataFrame({
+            "Region": ["Madrid", "Europe"],
+            "Percentage": [60, 40]
+        })
+        fig2 = px.bar(df_bar, 
+                    x="Percentage", 
+                    y="Region", 
+                    orientation="h", 
+                    text="Percentage",
+                    labels={"Percentage": "Percentage", "Region": "Region"},
+                    title="Comparison: Madrid vs Europe")
+        fig2.update_traces(texttemplate='%{text}%', textposition='outside')
+        fig2.update_layout(
+            xaxis_range=[0, 100],
+            yaxis={'categoryorder':'total ascending'},
+            margin=dict(l=40, r=20, t=50, b=40),
+            height=150
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+        
     # --- Graph 3: Concerns Comparison Radar Chart ---
-    st.markdown("<h6 style='text-align: left;'>Concerns Comparison Between 2014 and 2024</h6>", unsafe_allow_html=True)
-    
-    from io import StringIO
+    st.markdown("""<h6>Concerns Comparison Between 2014 and 2024</h6>""", unsafe_allow_html=True)
     data = """Year;Access to Housing;Unemployment;Political Issues;Job Quality;Immigration;Economic Crisis
 2014;5;8;6;7;4;7
 2024;9;7;6;7;5;6"""
     df_radar = pd.read_csv(StringIO(data), delimiter=';')
-    
     categories = list(df_radar.columns[1:])
-    
     fig3 = go.Figure()
     for index, row in df_radar.iterrows():
         values = row[categories].tolist()
@@ -337,6 +378,3 @@ with col2:
         height=250,
     )
     st.plotly_chart(fig3, use_container_width=True)
-
-with col2:
-    st.write(" ")  # Placeholder if needed for additional content
