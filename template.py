@@ -8,12 +8,15 @@ st.markdown("""
 <style>
 .title-bar {
     background-color: #dcef6e;
-    padding: 10px 15px; /* Added padding */
+    padding: 0 15px; /* Simplified padding */
     border-radius: 5px;
     margin-bottom: 20px; /* Add some space below the title bar */
     color: #333; /* Darker text color for better contrast */
     font-size: 24px;
     font-weight: bold;
+    display: flex; /* Added for vertical centering */
+    align-items: center; /* Added for vertical centering */
+    height: 50px; /* Fixed height for consistent appearance */
 }
 </style>
 """, unsafe_allow_html=True)
