@@ -123,7 +123,6 @@ with st.sidebar:
         index=0
     )
 
-
 # ------------------ Main Dashboard Content ------------------
 st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
@@ -168,7 +167,7 @@ with col1:
     # --- Container 2: Map ---
     with st.container():
         st.markdown("<div style='margin-top: -10px;'></div>", unsafe_allow_html=True)
-        m = folium.Map(location=[40.417101, -3.695899], zoom_start=12, tiles="cartodbpositron")
+        m = folium.Map(location=[40.417101, -3.695899], zoom_start=10, tiles="cartodbpositron")
         for feature in geojson_data['features']:
             district_name = feature['properties'].get('NOMBRE', 'Unknown')
             avg_rent = district_avgs.get(district_name, min_rent)
@@ -212,10 +211,7 @@ with col1:
                 
     # --- Container 3: Buckets (4 Metrics) ---
     with st.container():
-        # A slight negative margin to reduce the gap between the map and the KPIs
         st.markdown("<div style='margin-top: -20px;'></div>", unsafe_allow_html=True)
-        
-        # Create four equal columns for the KPIs
         bucket1_col, bucket2_col, bucket3_col, bucket4_col = st.columns(4)
         
         with bucket1_col:
@@ -240,17 +236,12 @@ with col1:
 
 with col2:
     # --- Graph 1: Youth Salary vs Rent Prices ---
-    st.markdown("<h3 style='text-align: center;'>Youth Salary vs Rent Prices</h3>", unsafe_allow_html=True)
     
-    # Load CSV data for the first graph
     df_youth = pd.read_csv(r"..\data\Youth_Salary_vs_Rent_Prices.csv")
     # Ensure your columns are named appropriately; for example:
     # df_youth.columns = ["Year", "Average_Youth_Salary", "Average_Monthly_Rent"]
     
-    import plotly.graph_objects as go
-    # Create a figure for the first graph
     fig1 = go.Figure()
-    # Add bar traces for each series
     fig1.add_trace(go.Bar(
         x=df_youth["Year"],
         y=df_youth["Average_Youth_Salary"],
@@ -263,7 +254,6 @@ with col2:
         name="Average Monthly Rent",
         marker_color="#dcef6e"
     ))
-    # Overlay line traces
     fig1.add_trace(go.Scatter(
         x=df_youth["Year"],
         y=df_youth["Average_Youth_Salary"],
@@ -285,20 +275,18 @@ with col2:
         title="Average Youth Salary vs Average Monthly Rent Prices",
         xaxis_tickangle=-45,
         yaxis_range=[600, 1200],
-        margin=dict(l=40, r=20, t=50, b=40)
+        margin=dict(l=40, r=20, t=50, b=40),
+        height=250
     )
     st.plotly_chart(fig1, use_container_width=True)
     
     # --- Graph 2: Comparison: Madrid vs Europe (Horizontal Bar Chart) ---
-    st.markdown("<h3 style='text-align: center;'>Comparison: Madrid vs Europe</h3>", unsafe_allow_html=True)
     
     import plotly.express as px
-    # Create a DataFrame for the horizontal bar chart
     df_bar = pd.DataFrame({
         "Region": ["Madrid", "Europe"],
         "Percentage": [60, 40]
     })
-    # Create the horizontal bar chart
     fig2 = px.bar(df_bar, 
                   x="Percentage", 
                   y="Region", 
@@ -310,27 +298,24 @@ with col2:
     fig2.update_layout(
         xaxis_range=[0, 100],
         yaxis={'categoryorder':'total ascending'},
-        margin=dict(l=40, r=20, t=50, b=40)
+        margin=dict(l=40, r=20, t=50, b=40),
+        height=150
     )
     st.plotly_chart(fig2, use_container_width=True)
     
     # --- Graph 3: Concerns Comparison Radar Chart ---
-    st.markdown("<h3 style='text-align: center;'>Concerns Comparison Between 2014 and 2024</h3>", unsafe_allow_html=True)
+    st.markdown("<h6 style='text-align: left;'>Concerns Comparison Between 2014 and 2024</h6>", unsafe_allow_html=True)
     
-    # Define the data using a multi-line string and read it into a DataFrame
     from io import StringIO
     data = """Year;Access to Housing;Unemployment;Political Issues;Job Quality;Immigration;Economic Crisis
 2014;5;8;6;7;4;7
 2024;9;7;6;7;5;6"""
     df_radar = pd.read_csv(StringIO(data), delimiter=';')
     
-    # Define the categories for the radar chart (all columns except 'Year')
     categories = list(df_radar.columns[1:])
     
-    # Create the radar chart
     fig3 = go.Figure()
     for index, row in df_radar.iterrows():
-        # Close the loop by repeating the first value
         values = row[categories].tolist()
         values += values[:1]
         cats = categories + [categories[0]]
@@ -348,9 +333,10 @@ with col2:
             )
         ),
         showlegend=True,
-        margin=dict(l=40, r=20, t=50, b=40)
+        margin=dict(l=40, r=20, t=50, b=40),
+        height=250,
     )
     st.plotly_chart(fig3, use_container_width=True)
 
-
-
+with col2:
+    st.write(" ")  # Placeholder if needed for additional content
