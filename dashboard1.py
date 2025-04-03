@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import streamlit as st
 
 # --- Page configuration ---
@@ -55,3 +56,5 @@ st.markdown('<div class="aspect-ratio-container"></div>', unsafe_allow_html=True
 
 # Example: Place additional content below the aspect ratio container
 st.write("Add your main dashboard content below this line.")
+=======
+>>>>>>> e416466d60a30cd64725676171e68603d3747e41
