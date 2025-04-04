@@ -8,8 +8,9 @@ from plotly.subplots import make_subplots
 import json
 import folium
 from streamlit_folium import st_folium
-# import matplotlib.pyplot as plt # Not used directly in provided d1 code
 from io import StringIO
+# Import the bucket functions from utils.py in dashboard1_graphs
+from dashboard1_graphs.utils import bucket_1, bucket_2, bucket_3, bucket_4, bucket_5
 
 # --- Page Configuration ---
 st.set_page_config(layout="wide", page_title="Madrid Housing Analysis")
@@ -19,33 +20,6 @@ if 'page' not in st.session_state:
     st.session_state.page = 'dashboard1' # Start on Dashboard 1
 if 'selected_districts' not in st.session_state: # For Dashboard 1 map interaction
     st.session_state.selected_districts = []
-
-# --- Placeholder Utils Functions (Replace with actual imports/definitions) ---
-def bucket_1(df, district): return f"{np.random.uniform(1, 5):.1f}%" if district and district != "All" else f"{np.random.uniform(1, 5):.1f}%" # Simulate All
-def bucket_2(df, district):
-    if district and district != "All":
-        # Simulate district-specific max
-        return f"€{np.random.uniform(15, 25):.1f}"
-    else:
-        # Simulate overall max when 'All' or None is selected
-        # In reality, you would calculate df['Rent_Price'].max() here
-        return f"€{np.random.uniform(20, 26):.1f}"
-def bucket_3(df, district): return f"#{np.random.randint(1, 10)}" if district and district != "All" else "N/A" # Ranking N/A for All
-def bucket_4(df, district):
-    if district and district != "All":
-        # Simulate district-specific average
-        return f"€{np.random.uniform(10, 20):.1f}"
-    else:
-        # Simulate overall average
-        # In reality, calculate df['Rent_Price'].mean()
-        return f"€{np.random.uniform(12, 18):.1f}"
-def bucket_5(avg_rent_str, surface=100):
-    try:
-        rent_val = float(avg_rent_str.replace('€', ''))
-        required = (rent_val * surface) / 0.40 # Assuming 40% of income for rent
-        return f"{required:,.0f}"
-    except:
-        return "N/A"
 
 # --- CSS Definitions ---
 # CSS specific to Dashboard 1
@@ -425,25 +399,44 @@ def display_dashboard1_content(kpi_district):
         # --- Container 3: Buckets (4 Metrics) ---
         with st.container():
             bucket1_col, bucket2_col, bucket3_col, bucket4_col = st.columns(4)
-            # kpi_district_val = kpi_district if kpi_district != "All" else None # REMOVED THIS LINE
             with bucket1_col:
                 # Pass kpi_district directly
-                value1 = bucket_1(df_prices_d1, kpi_district)
+                cagr_value = bucket_1(df_prices_d1, kpi_district)
+                # Format the CAGR value with % sign if it's a number
+                if cagr_value != "N/A":
+                    value1 = f"{cagr_value:.1f}%"
+                else:
+                    value1 = cagr_value
                 st.metric(label="CAGR", value=value1)
                 st.caption("Annual growth rate (%)")
             with bucket2_col:
                 # Pass kpi_district directly
-                value2 = bucket_2(df_prices_d1, kpi_district)
+                max_price = bucket_2(df_prices_d1, kpi_district)
+                # Format the max price with € sign
+                if max_price != "N/A":
+                    value2 = f"€{max_price:.1f}"
+                else:
+                    value2 = max_price
                 st.metric(label="Max Rental", value=value2)
                 st.caption("Max Rent recorded (€/m²)")
             with bucket3_col:
                 # Pass kpi_district directly
-                value3 = bucket_3(df_prices_d1, kpi_district)
+                rank = bucket_3(df_prices_d1, kpi_district)
+                # Format the rank with # sign
+                if rank != "N/A":
+                    value3 = f"#{rank}"
+                else:
+                    value3 = rank
                 st.metric(label="Ranking", value=value3)
                 st.caption("Rank by Avg Rent Price")
             with bucket4_col:
                 # Pass kpi_district directly
-                value4 = bucket_4(df_prices_d1, kpi_district)
+                avg_price = bucket_4(df_prices_d1, kpi_district)
+                # Format the avg price with € sign
+                if avg_price != "N/A":
+                    value4 = f"€{avg_price:.1f}"
+                else:
+                    value4 = avg_price
                 st.metric(label="Avg Rent Price", value=value4)
                 st.caption("Average Rent Price (€/m²)")
 
@@ -474,13 +467,20 @@ def display_dashboard1_content(kpi_district):
                     key="d1_required_income_district_selectbox"
                 )
                 # Pass required_income_district directly to bucket_4 for calculation
-                avg_rent_price_str = bucket_4(df_prices_d1, required_income_district)
-                required_income = bucket_5(avg_rent_price_str, surface=100)
-                st.metric(label=f"Req. Income (100m²) - {required_income_district}", value=f"€{required_income}")
+                avg_rent_price = bucket_4(df_prices_d1, required_income_district)
+                # Check if avg_rent_price is a valid number
+                if avg_rent_price != "N/A":
+                    # Calculate required income
+                    required_income = bucket_5(avg_rent_price, surface=100)
+                    st.metric(label=f"Req. Income (100m²) - {required_income_district}", 
+                             value=f"€{required_income:,.0f}")
+                else:
+                    st.metric(label=f"Req. Income (100m²) - {required_income_district}", 
+                             value="N/A")
                 st.caption("Net income (40% rent)")
         with col5:
             # --- Graph 2: Comparison: Madrid vs Europe --- Moved from d1
-            df_bar_d1 = pd.DataFrame({"Region": ["Madrid", "Europe"], "Percentage": [60, 40]})
+            df_bar_d1 = pd.DataFrame({"Region": ["Madrid", "Europe"], "Percentage": [63, 40]})
             fig2 = px.bar(df_bar_d1, x="Percentage", y="Region", orientation="h", text="Percentage", title="Rent Burden: Madrid vs Europe")
             fig2.update_traces(texttemplate='%{text}%', textposition='outside')
             fig2.update_layout(xaxis_range=[0, 100], yaxis={'categoryorder':'total ascending'}, margin=dict(l=40, r=20, t=50, b=40), height=150, legend=dict(font=dict(size=10)))
@@ -948,7 +948,7 @@ def display_dashboard3_content(incentive_budget, tax_savings, growth_rate_withou
 # Apply CSS, Title, Sidebar and Content based on the current page
 if st.session_state.page == 'dashboard1':
     st.markdown(css_dashboard1, unsafe_allow_html=True)
-    st.markdown('<div class="title-bar"><b>Strategic Overview:</b> Madrid Rent Price Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="title-bar">Strategic Overview: <b> Rent Prices in Madrid represent a serious problem for the youth population.</b></div>', unsafe_allow_html=True)
     kpi_district_d1 = display_dashboard1_sidebar()
     display_dashboard1_content(kpi_district_d1)
 

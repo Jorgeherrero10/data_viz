@@ -188,6 +188,6 @@ def bucket_5(price_2m, surface=100):
     rent_expenditure = price_2m * surface
 
     # Calculate the monthly income based on the assumption that 40% of the total income is dedicated to rent
-    monthly_income = rent_expenditure / 0.4
+    monthly_income = rent_expenditure / 0.40
 
     return monthly_income
