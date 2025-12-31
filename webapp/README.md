@@ -10,6 +10,23 @@ The dashboard includes three main views:
 2. **Tactical Decisions** - Smart rent control implementation analysis with landlord incentives
 3. **Analytical Insights** - Deep-dive financial analysis with budget flow and projections
 
+## Screenshots
+
+### Dashboard 1: Strategic Overview
+Rent price trends, district comparisons, and youth salary vs rent analysis.
+
+![Strategic Overview](https://github.com/user-attachments/assets/b5aee3a0-bf74-4ca8-a9ae-db95e361db80)
+
+### Dashboard 2: Tactical Decisions
+Smart rent control implementation analysis with landlord incentives.
+
+![Tactical Decisions](https://github.com/user-attachments/assets/1f49badc-0dee-4c71-8fa0-9ebd190e68f5)
+
+### Dashboard 3: Analytical Insights
+Deep-dive financial analysis with budget flow and projections.
+
+![Analytical Insights](https://github.com/user-attachments/assets/cc631427-c8ec-47a4-8655-856f86244676)
+
 ## Getting Started
 
 ### Prerequisites
