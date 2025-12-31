@@ -31,4 +31,10 @@ Thumbs.db
 .ipynb_checkpoints
 
 # Logs
-*.log 
+*.log
+
+# Node.js / Next.js (webapp)
+node_modules/
+webapp/.next/
+webapp/out/
+webapp/.vercel

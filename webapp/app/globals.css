@@ -1,0 +1,272 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #dcef6e;
+  --primary-dark: #b0c74a;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.title-bar {
+  background-color: #dcef6e;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  min-height: 45px;
+}
+
+.chart-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: white;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.kpi-item {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.kpi-item h5 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.kpi-delta {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.kpi-delta.positive {
+  color: #27ae60;
+}
+
+.kpi-delta.negative {
+  color: #e74c3c;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  height: fit-content;
+}
+
+.sidebar h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #dcef6e;
+  box-shadow: 0 0 0 2px rgba(220, 239, 110, 0.3);
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #eee;
+  margin-top: 24px;
+}
+
+.nav-button {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.nav-button:not(:disabled) {
+  background-color: #dcef6e;
+  color: #333;
+}
+
+.nav-button:not(:disabled):hover {
+  background-color: #b0c74a;
+}
+
+.nav-button:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.insights-box {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: 1px solid #eee;
+}
+
+.insights-box h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #dcef6e;
+  padding-bottom: 8px;
+}
+
+.insight-item {
+  padding: 10px;
+  background-color: rgba(255,255,255,0.6);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.insight-label {
+  font-weight: bold;
+  color: #2c3e50;
+  font-size: 12px;
+}
+
+.insight-value {
+  font-size: 14px;
+  color: #333;
+  margin-top: 4px;
+}
+
+.footer {
+  background-color: #f0f0f0;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 16px;
+  font-size: 11px;
+  text-align: center;
+  color: #666;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tab-button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.tab-button.active {
+  background-color: #dcef6e;
+  border-color: #b0c74a;
+}
+
+.tab-button:hover:not(.active) {
+  background-color: #f0f0f0;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+.metric-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin: 4px 0;
+}
+
+.metric-delta {
+  font-size: 12px;
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  height: 250px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Loading spinner */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #dcef6e;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
